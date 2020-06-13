@@ -1,19 +1,54 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Dimensions } from 'react-native';
+import MapView from 'react-native-maps';
 
-export default function App() {
+const App = () => {
+  const [myLocation, setMyLocation] = useState({
+    latitude: 37.78825,
+    longitude: -122.4324,
+    latitudeDelta: 0.015,
+    longitudeDelta: 0.0121,
+  })
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+          console.log(position);
+          setMyLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.012,
+          })
+          console.log('my location => ', myLocation);
+        },
+        (error) => {
+          console.log(error.code, error.message);
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+    );
+  }, [])
+
+  const getLocation = (cord) => {
+    console.log('cords => ', cord)
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-    </View>
+      <MapView
+        region={myLocation}
+        style={styles.mapStyle}
+        showsUserLocation={true}
+        showsMyLocationButton={true}
+        onPress={(position) => getLocation(position.nativeEvent)}
+      />
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+  mapStyle: {
+    width: Dimensions.get('screen').width,
+    height: Dimensions.get('screen').height,
   },
 });
+
+export default App;
